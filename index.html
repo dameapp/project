@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan APP Emprendedores | Gestión Completa</title>
+    <title>Plan APP Emprendedores - Gestión de Proyectos</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1242,4 +1242,457 @@
             notificationsContainer: document.getElementById('notifications-container'),
             addTaskBtn: document.getElementById('add-task-btn'),
             taskModal: document.getElementById('task-modal'),
-            metricModal: document.getElementById('metri
+            metricModal: document.getElementById('metric-modal'),
+            taskForm: document.getElementById('task-form'),
+            metricForm: document.getElementById('metric-form'),
+            currentDate: document.getElementById('current-date')
+        };
+
+        // Inicializar la aplicación
+        function initApp() {
+            // Establecer fecha actual
+            const now = new Date();
+            dom.currentDate.textContent = now.toLocaleDateString('es-ES', { 
+                day: '2-digit', month: '2-digit', year: 'numeric' 
+            });
+            
+            // Cargar datos desde localStorage si existen
+            loadFromLocalStorage();
+            
+            // Renderizar todos los componentes
+            renderMetrics();
+            renderTasks();
+            renderTeam();
+            renderNotifications();
+            updateProgressBars();
+            
+            // Configurar eventos
+            setupEventListeners();
+        }
+
+        // Cargar datos desde localStorage
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('appEmprendedoresData');
+            if (savedData) {
+                projectData = JSON.parse(savedData);
+            }
+        }
+
+        // Guardar datos en localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('appEmprendedoresData', JSON.stringify(projectData));
+        }
+
+        // Renderizar métricas
+        function renderMetrics() {
+            const m = projectData.metrics;
+            
+            // Participación activa
+            dom.participationValue.textContent = `${m.participation.current}%`;
+            dom.participationTarget.textContent = `${m.participation.target}%`;
+            dom.participationReach.textContent = `${Math.round((m.participation.current / m.participation.target) * 100)}%`;
+            dom.participationBar.style.width = `${m.participation.current}%`;
+            
+            // Retroalimentación
+            dom.feedbackValue.textContent = `${m.feedback.current}%`;
+            dom.feedbackTarget.textContent = `${m.feedback.target}%`;
+            dom.feedbackReach.textContent = `${Math.round((m.feedback.current / m.feedback.target) * 100)}%`;
+            dom.feedbackBar.style.width = `${m.feedback.current}%`;
+            
+            // Uso de app
+            dom.usageValue.textContent = `${m.usage.current}%`;
+            dom.usageTarget.textContent = `${m.usage.target}%`;
+            dom.usageReach.textContent = `${Math.round((m.usage.current / m.usage.target) * 100)}%`;
+            dom.usageBar.style.width = `${m.usage.current}%`;
+            
+            // Propuestas de mejora
+            dom.improvementsValue.textContent = m.improvements.current;
+            dom.improvementsTarget.textContent = m.improvements.target;
+            dom.improvementsReach.textContent = `${Math.round((m.improvements.current / m.improvements.target) * 100)}%`;
+            dom.improvementsBar.style.width = `${(m.improvements.current / m.improvements.target) * 100}%`;
+        }
+
+        // Renderizar tareas
+        function renderTasks() {
+            dom.tasksContainer.innerHTML = '';
+            
+            projectData.tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-item';
+                taskElement.dataset.id = task.id;
+                
+                taskElement.innerHTML = `
+                    <div class="task-check ${task.completed ? 'completed' : ''}">
+                        ${task.completed ? '<i class="fas fa-check"></i>' : ''}
+                    </div>
+                    <div class="task-info">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-details">
+                            <div class="task-detail" data-field="assignee">
+                                <i class="fas fa-user"></i>
+                                <span>${task.assignee}</span>
+                            </div>
+                            <div class="task-detail" data-field="dates">
+                                <i class="fas fa-calendar"></i>
+                                <span>${formatDate(task.startDate)} - ${formatDate(task.endDate)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-priority priority-${task.priority}">
+                        ${task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}
+                    </div>
+                    <div class="task-actions">
+                        <div class="task-action-btn edit-task">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="task-action-btn delete-task">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                    </div>
+                `;
+                
+                dom.tasksContainer.appendChild(taskElement);
+            });
+        }
+
+        // Renderizar equipo
+        function renderTeam() {
+            dom.teamContainer.innerHTML = '';
+            
+            projectData.team.forEach(member => {
+                const memberElement = document.createElement('div');
+                memberElement.className = 'team-member';
+                memberElement.dataset.id = member.id;
+                
+                const initials = member.name.split(' ').map(n => n[0]).join('');
+                
+                memberElement.innerHTML = `
+                    <div class="member-avatar">${initials}</div>
+                    <div class="member-info">
+                        <div class="member-name">${member.name}</div>
+                        <div class="member-role">${member.role}</div>
+                    </div>
+                    <div class="member-tasks">${member.tasks} tareas</div>
+                `;
+                
+                dom.teamContainer.appendChild(memberElement);
+            });
+        }
+
+        // Renderizar notificaciones
+        function renderNotifications() {
+            dom.notificationsContainer.innerHTML = '';
+            
+            projectData.notifications.forEach(notif => {
+                const notifElement = document.createElement('div');
+                notifElement.className = 'notification';
+                
+                let iconClass = 'update';
+                if (notif.type === 'task') iconClass = 'task';
+                if (notif.type === 'warning') iconClass = 'warning';
+                
+                notifElement.innerHTML = `
+                    <div class="notification-icon ${iconClass}">
+                        <i class="fas ${notif.type === 'update' ? 'fa-sync-alt' : notif.type === 'task' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                    </div>
+                    <div class="notification-info">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-desc">${notif.description}</div>
+                        <div class="notification-time">${notif.time}</div>
+                    </div>
+                `;
+                
+                dom.notificationsContainer.appendChild(notifElement);
+            });
+        }
+
+        // Actualizar barras de progreso
+        function updateProgressBars() {
+            // Progreso general
+            dom.generalProgress.textContent = `${projectData.generalProgress}%`;
+            dom.generalProgressBar.style.width = `${projectData.generalProgress}%`;
+            
+            // Tareas completadas
+            const completed = projectData.tasks.filter(t => t.completed).length;
+            const total = projectData.tasks.length;
+            dom.completedTasks.textContent = `${completed}/${total}`;
+            dom.tasksProgressBar.style.width = `${(completed / total) * 100}%`;
+            
+            // Emprendedores
+            const entrepreneurs = projectData.entrepreneurs;
+            dom.entrepreneurs.textContent = `${entrepreneurs.current}/${entrepreneurs.target}`;
+            dom.entrepreneursProgressBar.style.width = `${(entrepreneurs.current / entrepreneurs.target) * 100}%`;
+            
+            // Progreso por fases
+            projectData.phases.forEach(phase => {
+                document.getElementById(`phase${phase.id}-percent`).textContent = `${phase.progress}%`;
+                document.getElementById(`phase${phase.id}-bar`).style.width = `${phase.progress}%`;
+                document.getElementById(`phase${phase.id}-progress`).style.width = `${phase.progress}%`;
+            });
+        }
+
+        // Formatear fecha
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', { 
+                day: '2-digit', month: '2-digit' 
+            });
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Botón para agregar nueva tarea
+            dom.addTaskBtn.addEventListener('click', () => {
+                openTaskModal(null);
+            });
+            
+            // Eventos de tareas
+            dom.tasksContainer.addEventListener('click', (e) => {
+                const taskItem = e.target.closest('.task-item');
+                if (!taskItem) return;
+                
+                const taskId = parseInt(taskItem.dataset.id);
+                const task = projectData.tasks.find(t => t.id === taskId);
+                
+                // Completar tarea
+                if (e.target.closest('.task-check')) {
+                    task.completed = !task.completed;
+                    saveToLocalStorage();
+                    renderTasks();
+                    updateProgressBars();
+                    addNotification('task', `Tarea ${task.completed ? 'completada' : 'pendiente'}`, `"${task.title}" marcada como ${task.completed ? 'completada' : 'pendiente'}`);
+                }
+                
+                // Editar tarea
+                if (e.target.closest('.edit-task')) {
+                    openTaskModal(task);
+                }
+                
+                // Eliminar tarea
+                if (e.target.closest('.delete-task')) {
+                    if (confirm(`¿Estás seguro de eliminar la tarea "${task.title}"?`)) {
+                        projectData.tasks = projectData.tasks.filter(t => t.id !== taskId);
+                        saveToLocalStorage();
+                        renderTasks();
+                        updateProgressBars();
+                        addNotification('warning', 'Tarea eliminada', `Se eliminó la tarea "${task.title}"`);
+                    }
+                }
+                
+                // Editar responsable
+                if (e.target.closest('.task-detail[data-field="assignee"]')) {
+                    const newAssignee = prompt('Nuevo responsable:', task.assignee);
+                    if (newAssignee && newAssignee.trim() !== '') {
+                        task.assignee = newAssignee.trim();
+                        saveToLocalStorage();
+                        renderTasks();
+                        addNotification('update', 'Responsable actualizado', `Tarea "${task.title}" asignada a ${task.assignee}`);
+                    }
+                }
+                
+                // Editar fechas
+                if (e.target.closest('.task-detail[data-field="dates"]')) {
+                    const newStart = prompt('Nueva fecha de inicio (YYYY-MM-DD):', task.startDate);
+                    const newEnd = prompt('Nueva fecha de fin (YYYY-MM-DD):', task.endDate);
+                    
+                    if (newStart && newEnd && newStart.trim() !== '' && newEnd.trim() !== '') {
+                        task.startDate = newStart.trim();
+                        task.endDate = newEnd.trim();
+                        saveToLocalStorage();
+                        renderTasks();
+                        addNotification('update', 'Fechas actualizadas', `Tarea "${task.title}" con nuevas fechas`);
+                    }
+                }
+                
+                // Editar prioridad
+                if (e.target.closest('.task-priority')) {
+                    const newPriority = prompt('Nueva prioridad (alta, media, baja):', task.priority);
+                    if (newPriority && ['alta', 'media', 'baja'].includes(newPriority.toLowerCase())) {
+                        task.priority = newPriority.toLowerCase();
+                        saveToLocalStorage();
+                        renderTasks();
+                        addNotification('update', 'Prioridad actualizada', `Tarea "${task.title}" ahora es de prioridad ${task.priority}`);
+                    }
+                }
+            });
+            
+            // Eventos para editar métricas
+            document.querySelectorAll('.editable').forEach(metricCard => {
+                metricCard.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('metric-value') || e.target.closest('.edit-indicator')) {
+                        const metricId = metricCard.id.split('-')[1];
+                        openMetricModal(metricId);
+                    }
+                });
+            });
+            
+            // Eventos para el modal de tareas
+            document.querySelectorAll('.close-modal, #cancel-task').forEach(el => {
+                el.addEventListener('click', () => {
+                    dom.taskModal.style.display = 'none';
+                });
+            });
+            
+            document.querySelectorAll('.close-modal, #cancel-metric').forEach(el => {
+                el.addEventListener('click', () => {
+                    dom.metricModal.style.display = 'none';
+                });
+            });
+            
+            dom.taskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveTask();
+            });
+            
+            dom.metricForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveMetric();
+            });
+        }
+
+        // Abrir modal para editar/crear tarea
+        function openTaskModal(task) {
+            const modal = dom.taskModal;
+            const form = dom.taskForm;
+            
+            if (task) {
+                // Modo edición
+                document.getElementById('modal-task-title').textContent = 'Editar Tarea';
+                document.getElementById('task-id').value = task.id;
+                document.getElementById('task-name').value = task.title;
+                document.getElementById('task-assignee').value = task.assignee;
+                document.getElementById('task-start').value = task.startDate;
+                document.getElementById('task-end').value = task.endDate;
+                document.getElementById('task-priority').value = task.priority;
+            } else {
+                // Modo creación
+                document.getElementById('modal-task-title').textContent = 'Crear Nueva Tarea';
+                document.getElementById('task-id').value = '';
+                document.getElementById('task-name').value = '';
+                document.getElementById('task-assignee').value = 'María González';
+                document.getElementById('task-start').value = '';
+                document.getElementById('task-end').value = '';
+                document.getElementById('task-priority').value = 'high';
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Guardar tarea desde el modal
+        function saveTask() {
+            const idInput = document.getElementById('task-id');
+            const name = document.getElementById('task-name').value;
+            const assignee = document.getElementById('task-assignee').value;
+            const startDate = document.getElementById('task-start').value;
+            const endDate = document.getElementById('task-end').value;
+            const priority = document.getElementById('task-priority').value;
+            
+            if (idInput.value) {
+                // Editar tarea existente
+                const taskId = parseInt(idInput.value);
+                const task = projectData.tasks.find(t => t.id === taskId);
+                
+                task.title = name;
+                task.assignee = assignee;
+                task.startDate = startDate;
+                task.endDate = endDate;
+                task.priority = priority;
+                
+                addNotification('update', 'Tarea actualizada', `"${name}" modificada`);
+            } else {
+                // Crear nueva tarea
+                const newId = Math.max(...projectData.tasks.map(t => t.id), 0) + 1;
+                projectData.tasks.push({
+                    id: newId,
+                    title: name,
+                    assignee: assignee,
+                    startDate: startDate,
+                    endDate: endDate,
+                    priority: priority,
+                    completed: false
+                });
+                
+                addNotification('task', 'Nueva tarea creada', `"${name}" agregada al plan`);
+            }
+            
+            saveToLocalStorage();
+            renderTasks();
+            updateProgressBars();
+            dom.taskModal.style.display = 'none';
+        }
+
+        // Abrir modal para editar métrica
+        function openMetricModal(metricId) {
+            const modal = dom.metricModal;
+            const metric = projectData.metrics[metricId];
+            
+            document.getElementById('modal-metric-title').textContent = `Editar ${metricId === 'participation' ? 'Participación Activa' : 
+                metricId === 'feedback' ? 'Retroalimentación Positiva' : 
+                metricId === 'usage' ? 'Intención de Uso App' : 'Propuestas de Mejora'}`;
+            
+            document.getElementById('metric-id').value = metricId;
+            document.getElementById('metric-value-input').value = metric.current;
+            document.getElementById('metric-target-input').value = metric.target;
+            
+            modal.style.display = 'flex';
+        }
+
+        // Guardar métrica desde el modal
+        function saveMetric() {
+            const metricId = document.getElementById('metric-id').value;
+            const currentValue = parseInt(document.getElementById('metric-value-input').value);
+            const targetValue = parseInt(document.getElementById('metric-target-input').value);
+            
+            projectData.metrics[metricId].current = currentValue;
+            projectData.metrics[metricId].target = targetValue;
+            
+            saveToLocalStorage();
+            renderMetrics();
+            dom.metricModal.style.display = 'none';
+            
+            addNotification('update', 'Métrica actualizada', `Se actualizó ${metricId === 'participation' ? 'Participación Activa' : 
+                metricId === 'feedback' ? 'Retroalimentación Positiva' : 
+                metricId === 'usage' ? 'Intención de Uso App' : 'Propuestas de Mejora'}`);
+        }
+
+        // Agregar notificación
+        function addNotification(type, title, description) {
+            const now = new Date();
+            const timeDiff = Math.floor((Date.now() - now) / 1000); // En segundos
+            let timeText = '';
+            
+            if (timeDiff > -60) { // Dentro del minuto
+                timeText = 'Hace unos momentos';
+            } else if (timeDiff > -3600) { // Dentro de la hora
+                const mins = Math.floor(-timeDiff / 60);
+                timeText = `Hace ${mins} minuto${mins > 1 ? 's' : ''}`;
+            } else if (timeDiff > -86400) { // Dentro del día
+                const hours = Math.floor(-timeDiff / 3600);
+                timeText = `Hace ${hours} hora${hours > 1 ? 's' : ''}`;
+            } else {
+                const days = Math.floor(-timeDiff / 86400);
+                timeText = `Hace ${days} día${days > 1 ? 's' : ''}`;
+            }
+            
+            const newNotif = {
+                id: Math.max(...projectData.notifications.map(n => n.id), 0) + 1,
+                type: type,
+                title: title,
+                description: description,
+                time: timeText
+            };
+            
+            projectData.notifications.unshift(newNotif);
+            if (projectData.notifications.length > 10) {
+                projectData.notifications.pop();
+            }
+            
+            saveToLocalStorage();
+            renderNotifications();
+        }
+
+        // Inicializar la aplicación cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
