@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan APP Emprendedores | Gestión Completa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #0ea5e9;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --border: #cbd5e1;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .logo-text p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 12px 20px;
+            min-width: 180px;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .stat-box h3 {
+            font-size: 14px;
+            color: var(--gray);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .stat-box .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .stat-box .progress {
+            height: 6px;
+            background: var(--light-gray);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .stat-box .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: var(--primary);
+        }
+        
+        .timeframe-selector {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .time-btn {
+            padding: 8px 15px;
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .time-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .gantt-container {
+            overflow-x: auto;
+        }
+        
+        .gantt-chart {
+            min-width: 900px;
+        }
+        
+        .gantt-row {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+        
+        .gantt-row-header {
+            width: 200px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .gantt-timeline {
+            flex: 1;
+            height: 40px;
+            position: relative;
+            background: var(--light);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .gantt-period {
+            position: absolute;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .gantt-period:hover {
+            filter: brightness(110%);
+        }
+        
+        .gantt-period.phase-1 { background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+        .gantt-period.phase-2 { background: linear-gradient(90deg, var(--accent), #a78bfa); }
+        .gantt-period.phase-3 { background: linear-gradient(90deg, var(--success), #34d399); }
+        
+        .gantt-progress {
+            position: absolute;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            width: 0;
+            transition: width 0.5s ease;
+        }
+        
+        .gantt-milestone {
+            position: absolute;
+            top: -5px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 3px solid var(--dark);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+        }
+        
+        .gantt-today {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--danger);
+            transform: translateX(-50%);
+        }
+        
+        .gantt-today::after {
+            content: "Hoy";
+            position: absolute;
+            top: -25px;
+            left: -10px;
+            background: var(--danger);
+            color: white;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .metric-card.editable::after {
+            content: "✎ Editar";
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 12px;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .metric-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        
+        .metric-target {
+            font-size: 14px;
+            color: var(--gray);
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        
+        .progress-bar-container {
+            height: 10px;
+            background: var(--light-gray);
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .chart-container {
+            height: 250px;
+            margin-top: 15px;
+        }
+        
+        .tasks-section {
+            margin-top: 15px;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        
+        .task-check {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .task-check.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .task-details {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: var(--gray);
+            flex-wrap: wrap;
+        }
+        
+        .task-detail {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .task-priority {
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .priority-high { background: #fee2e2; color: var(--danger); }
+        .priority-medium { background: #fef3c7; color: var(--warning); }
+        .priority-low { background: #dcfce7; color: var(--success); }
+        
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: 10px;
+        }
+        
+        .task-action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .task-action-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .team-card {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .team-member {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .team-member:hover {
+            background: var(--light);
+        }
+        
+        .member-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--dark);
+            flex-shrink: 0;
+        }
+        
+        .member-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .member-name {
+            font-weight: 500;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .member-role {
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        .member-tasks {
+            background: var(--light);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        
+        .notification {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            background: var(--light);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .notification:hover {
+            background: #dbeafe;
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .notification-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .notification-desc {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .notification-time {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .notification-icon.update { background: #dbeafe; color: var(--primary); }
+        .notification-icon.task { background: #dcfce7; color: var(--success); }
+        .notification-icon.warning { background: #fef3c7; color: var(--warning); }
+        
+        .progress-section {
+            margin-top: 15px;
+        }
+        
+        .phase-progress {
+            margin-bottom: 20px;
+        }
+        
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .phase-title {
+            font-weight: 500;
+        }
+        
+        .phase-percent {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--gray);
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+        
+        .add-task-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background: var(--light);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        .add-task-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--gray);
+        }
+        
+        .btn-outline:hover {
+            background: var(--light);
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .edit-indicator {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 12px;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-stats {
+                width: 100%;
+            }
+            
+            .stat-box {
+                flex: 1;
+                min-width: 140px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .timeframe-selector {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .time-btn {
+                flex: 1;
+                text-align: center;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Plan APP Emprendedores</h1>
+                    <p>Seguimiento visual del cronograma de implementación</p>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-box">
+                    <h3>Progreso General</h3>
+                    <div class="value" id="general-progress">42%</div>
+                    <div class="progress">
+                        <div class="progress-bar" id="general-progress-bar" style="width: 42%"></div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <h3>Tareas Completadas</h3>
+                    <div class="value" id="completed-tasks">18/42</div>
+                    <div class="progress">
+                        <div class="progress-bar" id="tasks-progress-bar" style="width: 43%"></div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <h3>Días Restantes</h3>
+                    <div class="value" id="days-remaining">64</div>
+                    <div class="progress">
+                        <div class="progress-bar" id="days-progress-bar" style="width: 33%"></div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <h3>Emprendedores Vinculados</h3>
+                    <div class="value" id="entrepreneurs">12/20</div>
+                    <div class="progress">
+                        <div class="progress-bar" id="entrepreneurs-progress-bar" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-gantt"></i>
+                            <h2>Cronograma de Implementación</h2>
+                        </div>
+                        <div class="timeframe-selector">
+                            <button class="time-btn active">12 semanas</button>
+                            <button class="time-btn">Fase 1</button>
+                            <button class="time-btn">Fase 2</button>
+                            <button class="time-btn">Fase 3</button>
+                        </div>
+                    </div>
+                    <div class="gantt-container">
+                        <div class="gantt-chart">
+                            <div class="gantt-row">
+                                <div class="gantt-row-header">Fase 1: Desarrollo + Integración (5 semanas)</div>
+                                <div class="gantt-timeline">
+                                    <div class="gantt-period phase-1" style="left: 0%; width: 41.66%;">
+                                        En progreso (42%)
+                                        <div class="gantt-progress" id="phase1-progress" style="width: 42%"></div>
+                                    </div>
+                                    <div class="gantt-milestone" style="left: 20%;"></div>
+                                    <div class="gantt-milestone" style="left: 40%;"></div>
+                                    <div class="gantt-today" style="left: 16.66%;"></div>
+                                </div>
+                            </div>
+                            <div class="gantt-row">
+                                <div class="gantt-row-header">Fase 2: Testeo + Validación (4 semanas)</div>
+                                <div class="gantt-timeline">
+                                    <div class="gantt-period phase-2" style="left: 41.66%; width: 33.33%;">
+                                        Próximamente
+                                        <div class="gantt-progress" id="phase2-progress" style="width: 0%"></div>
+                                    </div>
+                                    <div class="gantt-milestone" style="left: 60%;"></div>
+                                    <div class="gantt-milestone" style="left: 75%;"></div>
+                                </div>
+                            </div>
+                            <div class="gantt-row">
+                                <div class="gantt-row-header">Fase 3: Lanzamiento + Entrega (3 semanas)</div>
+                                <div class="gantt-timeline">
+                                    <div class="gantt-period phase-3" style="left: 75%; width: 25%;">
+                                        Planificación
+                                        <div class="gantt-progress" id="phase3-progress" style="width: 5%"></div>
+                                    </div>
+                                    <div class="gantt-milestone" style="left: 90%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #2563eb, #0ea5e9);"></div>
+                            <span>Desarrollo + Integración</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #8b5cf6, #a78bfa);"></div>
+                            <span>Testeo + Validación</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                            <span>Lanzamiento + Entrega</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #1e293b; border-radius: 50%;"></div>
+                            <span>Hito importante</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card editable" id="metric-participation">
+                        <div class="metric-header">
+                            <div class="metric-title">Participación Activa</div>
+                            <div class="metric-icon" style="background: #dbeafe; color: #2563eb;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="participation-value">85%</div>
+                        <div class="metric-target">
+                            <span>Meta: <span id="participation-target">85%</span></span>
+                            <span>Alcance: <span id="participation-reach">100%</span></span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="participation-bar" style="background: #2563eb; width: 85%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card editable" id="metric-feedback">
+                        <div class="metric-header">
+                            <div class="metric-title">Retroalimentación Positiva</div>
+                            <div class="metric-icon" style="background: #dcfce7; color: #10b981;">
+                                <i class="fas fa-thumbs-up"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="feedback-value">78%</div>
+                        <div class="metric-target">
+                            <span>Meta: <span id="feedback-target">80%</span></span>
+                            <span>Alcance: <span id="feedback-reach">97.5%</span></span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="feedback-bar" style="background: #10b981; width: 78%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card editable" id="metric-usage">
+                        <div class="metric-header">
+                            <div class="metric-title">Intención de Uso App</div>
+                            <div class="metric-icon" style="background: #fef3c7; color: #f59e0b;">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="usage-value">92%</div>
+                        <div class="metric-target">
+                            <span>Meta: <span id="usage-target">90%</span></span>
+                            <span>Alcance: <span id="usage-reach">102%</span></span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="usage-bar" style="background: #f59e0b; width: 92%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card editable" id="metric-improvements">
+                        <div class="metric-header">
+                            <div class="metric-title">Propuestas de Mejora</div>
+                            <div class="metric-icon" style="background: #ede9fe; color: #8b5cf6;">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="improvements-value">7</div>
+                        <div class="metric-target">
+                            <span>Meta: <span id="improvements-target">10</span></span>
+                            <span>Alcance: <span id="improvements-reach">70%</span></span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="improvements-bar" style="background: #8b5cf6; width: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-tasks"></i>
+                            <h2>Tareas Prioritarias</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="tasks-section" id="tasks-container">
+                        <!-- Tareas se cargarán dinámicamente -->
+                    </div>
+                    
+                    <div class="add-task-btn" id="add-task-btn">
+                        <i class="fas fa-plus"></i>
+                        <span>Agregar Nueva Tarea</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-user-friends"></i>
+                            <h2>Equipo Responsable</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="team-card" id="team-container">
+                        <!-- Equipo se cargará dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-bell"></i>
+                            <h2>Últimas Actualizaciones</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="notifications" id="notifications-container">
+                        <!-- Notificaciones se cargarán dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-chart-line"></i>
+                            <h2>Progreso por Fase</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="phase-progress">
+                            <div class="phase-header">
+                                <div class="phase-title">Fase 1: Desarrollo + Integración</div>
+                                <div class="phase-percent" id="phase1-percent">42%</div>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="phase1-bar" style="background: #2563eb; width: 42%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-progress">
+                            <div class="phase-header">
+                                <div class="phase-title">Fase 2: Testeo + Validación</div>
+                                <div class="phase-percent" id="phase2-percent">0%</div>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="phase2-bar" style="background: #8b5cf6; width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-progress">
+                            <div class="phase-header">
+                                <div class="phase-title">Fase 3: Lanzamiento + Entrega</div>
+                                <div class="phase-percent" id="phase3-percent">5%</div>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="phase3-bar" style="background: #10b981; width: 5%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Plan APP Emprendedores | Seguimiento en tiempo real | Última actualización: <span id="current-date"></span></p>
+        </div>
+    </div>
+
+    <!-- Modal para editar tarea -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-task-title">Editar Tarea</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="task-form">
+                <input type="hidden" id="task-id">
+                <div class="form-group">
+                    <label for="task-name">Título de la tarea</label>
+                    <input type="text" id="task-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-assignee">Responsable</label>
+                    <select id="task-assignee" class="form-control" required>
+                        <option value="María González">María González</option>
+                        <option value="Carlos Mendoza">Carlos Mendoza</option>
+                        <option value="Laura Ramírez">Laura Ramírez</option>
+                        <option value="Roberto Sánchez">Roberto Sánchez</option>
+                        <option value="Javier Torres">Javier Torres</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-start">Fecha Inicio</label>
+                        <input type="date" id="task-start" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-end">Fecha Fin</label>
+                        <input type="date" id="task-end" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="task-priority">Prioridad</label>
+                    <select id="task-priority" class="form-control" required>
+                        <option value="high">Alta</option>
+                        <option value="medium">Media</option>
+                        <option value="low">Baja</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="cancel-task">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar métrica -->
+    <div class="modal" id="metric-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-metric-title">Editar Métrica</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="metric-form">
+                <input type="hidden" id="metric-id">
+                <div class="form-group">
+                    <label for="metric-value">Valor Actual</label>
+                    <input type="number" id="metric-value-input" class="form-control" min="0" max="100" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="metric-target">Valor Objetivo</label>
+                    <input type="number" id="metric-target-input" class="form-control" min="0" max="100" step="1" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="cancel-metric">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar Métrica</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Datos iniciales del proyecto
+        let projectData = {
+            generalProgress: 42,
+            completedTasks: 18,
+            totalTasks: 42,
+            daysRemaining: 64,
+            entrepreneurs: { current: 12, target: 20 },
+            metrics: {
+                participation: { current: 85, target: 85 },
+                feedback: { current: 78, target: 80 },
+                usage: { current: 92, target: 90 },
+                improvements: { current: 7, target: 10 }
+            },
+            phases: [
+                { id: 1, name: "Fase 1: Desarrollo + Integración", progress: 42 },
+                { id: 2, name: "Fase 2: Testeo + Validación", progress: 0 },
+                { id: 3, name: "Fase 3: Lanzamiento + Entrega", progress: 5 }
+            ],
+            team: [
+                { id: 1, name: "María González", role: "Coordinadora General", tasks: 8 },
+                { id: 2, name: "Carlos Mendoza", role: "Diseño y Testeo", tasks: 6 },
+                { id: 3, name: "Laura Ramírez", role: "Desarrollo Backend", tasks: 7 },
+                { id: 4, name: "Roberto Sánchez", role: "Diseño UI/UX", tasks: 5 },
+                { id: 5, name: "Javier Torres", role: "Desarrollo Frontend", tasks: 6 }
+            ],
+            notifications: [
+                { id: 1, type: "update", title: "Selección de emprendedores completada", 
+                  description: "20 emprendedores seleccionados con perfil diverso", time: "Hace 2 horas" },
+                { id: 2, type: "task", title: "Diseño de instrumentos de testeo finalizado", 
+                  description: "Encuestas y guías de feedback listas para implementación", time: "Hace 1 día" },
+                { id: 3, type: "warning", title: "Revisión requerida: Diseño UI", 
+                  description: "Necesita aprobación antes de continuar con desarrollo", time: "Hace 2 días" },
+                { id: 4, type: "update", title: "Avance en desarrollo de backend", 
+                  description: "Módulo de usuarios completado al 75%", time: "Hace 3 días" }
+            ],
+            tasks: [
+                { id: 1, title: "Selección de 20 emprendedores", assignee: "María González", 
+                  startDate: "2025-07-01", endDate: "2025-07-04", priority: "high", completed: true },
+                { id: 2, title: "Diseño instrumentos de testeo", assignee: "Carlos Mendoza", 
+                  startDate: "2025-07-01", endDate: "2025-07-04", priority: "high", completed: true },
+                { id: 3, title: "Desarrollo de base de datos y backend", assignee: "Laura Ramírez", 
+                  startDate: "2025-07-07", endDate: "2025-07-18", priority: "high", completed: false },
+                { id: 4, title: "Diseño de interfaz y experiencia de usuario", assignee: "Roberto Sánchez", 
+                  startDate: "2025-07-01", endDate: "2025-07-11", priority: "medium", completed: false },
+                { id: 5, title: "Desarrollo de frontend de la aplicación", assignee: "Javier Torres", 
+                  startDate: "2025-07-15", endDate: "2025-08-01", priority: "medium", completed: false }
+            ]
+        };
+
+        // Elementos DOM
+        const dom = {
+            generalProgress: document.getElementById('general-progress'),
+            generalProgressBar: document.getElementById('general-progress-bar'),
+            completedTasks: document.getElementById('completed-tasks'),
+            tasksProgressBar: document.getElementById('tasks-progress-bar'),
+            daysRemaining: document.getElementById('days-remaining'),
+            daysProgressBar: document.getElementById('days-progress-bar'),
+            entrepreneurs: document.getElementById('entrepreneurs'),
+            entrepreneursProgressBar: document.getElementById('entrepreneurs-progress-bar'),
+            tasksContainer: document.getElementById('tasks-container'),
+            teamContainer: document.getElementById('team-container'),
+            notificationsContainer: document.getElementById('notifications-container'),
+            addTaskBtn: document.getElementById('add-task-btn'),
+            taskModal: document.getElementById('task-modal'),
+            metricModal: document.getElementById('metri
